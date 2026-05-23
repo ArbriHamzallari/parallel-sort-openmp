@@ -1,0 +1,14 @@
+# compiled binary & object files
+psort
+*.o
+*.out
+*.dSYM/
+
+# macOS / editor cruft
+.DS_Store
+.vscode/
+.idea/
+
+# Note: results/ (sample chart + CSVs) is kept in the repo so the README
+# image renders on GitHub. After you run `make bench` on your machine,
+# commit your own charts to replace the single-thread samples.

@@ -1,0 +1,364 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bitonic Sort — Parallel Network Visualizer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0a0e14; --panel:#121a24; --panel-2:#0f161f;
+    --line:rgba(120,170,210,.09); --line-strong:rgba(120,170,210,.18);
+    --txt:#e8eef4; --muted:#8aa0b3; --faint:#5a6b7a;
+    --asc:#3ec5ff;        /* ascending comparator  */
+    --desc:#ff4d8d;       /* descending comparator */
+    --hot:#ffce4a;        /* active / parallel glow */
+    --ok:#39d98a;
+    --radius:14px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%}
+  body{
+    background:
+      radial-gradient(1200px 700px at 80% -10%, rgba(62,197,255,.07), transparent 60%),
+      radial-gradient(900px 600px at 0% 110%, rgba(255,77,141,.06), transparent 55%),
+      var(--ink);
+    background-attachment:fixed;
+    color:var(--txt);
+    font-family:"Manrope",system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;
+    padding:22px clamp(14px,3vw,40px) 40px;
+  }
+  /* blueprint grid overlay */
+  body::before{
+    content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
+    background-image:linear-gradient(var(--line) 1px,transparent 1px),
+                     linear-gradient(90deg,var(--line) 1px,transparent 1px);
+    background-size:34px 34px;
+    mask-image:radial-gradient(circle at 50% 35%,#000 55%,transparent 100%);
+  }
+  .wrap{max-width:1120px;margin:0 auto}
+
+  header{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;flex-wrap:wrap;margin-bottom:20px}
+  .eyebrow{font-family:"JetBrains Mono",monospace;font-size:12px;letter-spacing:.32em;
+    text-transform:uppercase;color:var(--asc);margin:0 0 6px}
+  h1{font-family:"JetBrains Mono",monospace;font-weight:800;font-size:clamp(26px,4vw,40px);
+    margin:0;line-height:1.02;letter-spacing:-.01em}
+  h1 em{font-style:normal;color:var(--hot)}
+  .sub{color:var(--muted);font-size:14px;margin:8px 0 0;max-width:52ch}
+
+  .formula{font-family:"JetBrains Mono",monospace;font-size:12.5px;color:var(--muted);
+    background:var(--panel-2);border:1px solid var(--line-strong);border-radius:10px;
+    padding:10px 14px;white-space:nowrap}
+  .formula b{color:var(--txt)}
+
+  /* stat strip */
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:0 0 16px}
+  .stat{background:var(--panel);border:1px solid var(--line-strong);border-radius:var(--radius);
+    padding:13px 16px}
+  .stat .k{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.14em;
+    text-transform:uppercase;color:var(--faint)}
+  .stat .v{font-family:"JetBrains Mono",monospace;font-weight:800;font-size:23px;margin-top:3px}
+  #vStep .v{color:var(--hot)} #vDepth .v{color:var(--asc)}
+
+  /* stage banner */
+  .banner{display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+    background:linear-gradient(90deg,rgba(255,206,74,.10),transparent);
+    border:1px solid rgba(255,206,74,.25);border-left:3px solid var(--hot);
+    border-radius:10px;padding:11px 16px;margin-bottom:14px;min-height:48px}
+  .bolt{font-size:20px;filter:drop-shadow(0 0 8px rgba(255,206,74,.6))}
+  .banner .msg{font-family:"JetBrains Mono",monospace;font-size:14px}
+  .banner .msg b{color:var(--hot)}
+  .banner .kj{margin-left:auto;font-family:"JetBrains Mono",monospace;font-size:13px;color:var(--muted)}
+  .banner.done{background:linear-gradient(90deg,rgba(57,217,138,.12),transparent);
+    border-color:rgba(57,217,138,.3);border-left-color:var(--ok)}
+  .banner.done .msg b{color:var(--ok)}
+
+  /* visualization */
+  .stage{background:linear-gradient(180deg,var(--panel),var(--panel-2));
+    border:1px solid var(--line-strong);border-radius:var(--radius);
+    padding:8px;box-shadow:0 30px 60px -30px rgba(0,0,0,.7);overflow:hidden}
+  svg{display:block;width:100%;height:auto}
+  .bar{transition:height .42s cubic-bezier(.7,0,.3,1),y .42s cubic-bezier(.7,0,.3,1),
+    fill .42s ease, stroke .2s ease}
+  .arc{fill:none;stroke-linecap:round;transition:opacity .2s ease}
+  .legend{display:flex;gap:18px;align-items:center;flex-wrap:wrap;
+    font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--muted);
+    padding:10px 8px 2px}
+  .swatch{display:inline-block;width:22px;height:3px;border-radius:3px;vertical-align:middle;margin-right:7px}
+
+  /* controls */
+  .controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:16px}
+  button{font-family:"JetBrains Mono",monospace;font-weight:700;font-size:13px;color:var(--txt);
+    background:var(--panel);border:1px solid var(--line-strong);border-radius:10px;
+    padding:10px 16px;cursor:pointer;transition:.15s;letter-spacing:.02em}
+  button:hover:not(:disabled){border-color:var(--asc);color:var(--asc);transform:translateY(-1px)}
+  button:disabled{opacity:.4;cursor:not-allowed}
+  button.primary{background:var(--asc);color:#04121b;border-color:var(--asc)}
+  button.primary:hover{filter:brightness(1.1);color:#04121b}
+  .seg{display:inline-flex;background:var(--panel-2);border:1px solid var(--line-strong);border-radius:10px;overflow:hidden}
+  .seg button{border:0;border-radius:0;background:transparent;padding:9px 13px}
+  .seg button.on{background:var(--asc);color:#04121b}
+  .group{display:flex;gap:9px;align-items:center}
+  .lbl{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.12em;
+    text-transform:uppercase;color:var(--faint)}
+  input[type=range]{accent-color:var(--asc);width:120px}
+  .spacer{flex:1 1 auto}
+
+  footer{margin-top:18px;color:var(--muted);font-size:13px;line-height:1.6}
+  footer code{font-family:"JetBrains Mono",monospace;color:var(--asc);background:var(--panel-2);
+    padding:1px 6px;border-radius:5px}
+  @media(max-width:640px){.stats{grid-template-columns:repeat(2,1fr)}}
+</style>
+
+<div class="wrap">
+  <header>
+    <div>
+      <p class="eyebrow">Parallel Programming · Mini-Project</p>
+      <h1>Bitonic Sort <em>/</em> Parallel Network</h1>
+      <p class="sub">A sorting network with a <b>fixed</b> compare-exchange pattern. Every comparator
+        inside one stage is independent — so the whole stage executes <b>in parallel</b>.</p>
+    </div>
+    <div class="formula">parallel depth = ½ · log₂n · (log₂n + 1) = <b id="fDepth">10</b> stages</div>
+  </header>
+
+  <div class="stats">
+    <div class="stat" id="vN"><div class="k">elements&nbsp;(n)</div><div class="v">16</div></div>
+    <div class="stat" id="vStep"><div class="k">parallel step</div><div class="v">0 / 10</div></div>
+    <div class="stat" id="vDepth"><div class="k">parallel depth</div><div class="v">10</div></div>
+    <div class="stat" id="vCmp"><div class="k">comparisons</div><div class="v">0</div></div>
+  </div>
+
+  <div class="banner" id="banner">
+    <span class="bolt">⚡</span>
+    <span class="msg" id="bannerMsg">Press <b>Play</b> or <b>Step</b> to begin.</span>
+    <span class="kj" id="bannerKJ"></span>
+  </div>
+
+  <div class="stage">
+    <svg id="viz" viewBox="0 0 1000 520" preserveAspectRatio="xMidYMid meet" aria-label="Bitonic sort visualization"></svg>
+    <div class="legend">
+      <span><span class="swatch" style="background:var(--asc)"></span>ascending comparator</span>
+      <span><span class="swatch" style="background:var(--desc)"></span>descending comparator</span>
+      <span><span class="swatch" style="background:var(--hot)"></span>active stage (running now)</span>
+      <span style="margin-left:auto;color:var(--faint)">bars = values · sorted ⇒ smooth gradient</span>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button class="primary" id="play">▶ Play</button>
+    <button id="step">Step ▸</button>
+    <button id="reset">⟲ Shuffle</button>
+    <div class="group" style="margin-left:6px">
+      <span class="lbl">size</span>
+      <div class="seg" id="sizeSeg">
+        <button data-n="8">8</button><button data-n="16" class="on">16</button>
+        <button data-n="32">32</button><button data-n="64">64</button>
+      </div>
+    </div>
+    <div class="spacer"></div>
+    <div class="group">
+      <span class="lbl">speed</span>
+      <input type="range" id="speed" min="1" max="10" value="6">
+    </div>
+  </div>
+
+  <footer>
+    Each highlighted stage is one <code>(k, j)</code> iteration of the algorithm. A sequential CPU runs its
+    comparators one after another; with <code>#pragma omp parallel for</code> they run at the same time — that is
+    why the chart on your slides shows speedup climbing toward the ideal line.
+  </footer>
+</div>
+
+<script>
+(() => {
+  const svg = document.getElementById('viz');
+  const NS = 'http://www.w3.org/2000/svg';
+  const W = 1000, H = 520, PAD = 38;
+  const BASE = 116;            // y of comparator baseline (top of bar zone)
+  const FLOOR = 478;           // y of bar bottoms
+  const MAXH = FLOOR - BASE - 8;
+
+  let n = 16, arr = [], stages = [], idx = 0, comparisons = 0;
+  let playing = false, timer = null, sorted = false;
+  let barEls = [], arcLayer = null;
+
+  const log2 = x => Math.round(Math.log2(x));
+  const depthOf = m => { const L = log2(m); return L * (L + 1) / 2; };
+  const speedMs = () => 1150 - document.getElementById('speed').value * 100;
+
+  // colour a value by its rank → smooth rainbow when sorted
+  const hueFor = v => 258 - 258 * ((v - 1) / (n - 1));
+  const colorFor = v => `hsl(${hueFor(v)},78%,60%)`;
+
+  function buildStages(m){
+    const out = [];
+    for(let k = 2; k <= m; k <<= 1)
+      for(let j = k >> 1; j > 0; j >>= 1){
+        const comps = [];
+        for(let i = 0; i < m; i++){
+          const l = i ^ j;
+          if(l > i) comps.push({i, l, asc: (i & k) === 0});
+        }
+        out.push({k, j, comps});
+      }
+    return out;
+  }
+
+  function shuffle(){
+    arr = Array.from({length:n}, (_,i) => i + 1);
+    for(let i = n - 1; i > 0; i--){
+      const r = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[r]] = [arr[r], arr[i]];
+    }
+  }
+
+  function reset(){
+    pause();
+    stages = buildStages(n);
+    idx = 0; comparisons = 0; sorted = false;
+    shuffle();
+    render();
+    drawBars(true);
+    document.getElementById('fDepth').textContent = depthOf(n);
+    document.querySelector('#vN .v').textContent = n;
+    document.querySelector('#vDepth .v').textContent = depthOf(n);
+    updateStats();
+    banner('Press <b>Play</b> or <b>Step</b> to begin.', '', '');
+    document.getElementById('banner').classList.remove('done');
+  }
+
+  // build the SVG skeleton (bars + arc layer)
+  function render(){
+    svg.innerHTML = '';
+    arcLayer = document.createElementNS(NS, 'g');
+    svg.appendChild(arcLayer);
+    const area = W - PAD * 2;
+    const slot = area / n;
+    const bw = Math.max(3, slot * 0.74);
+    barEls = [];
+    for(let i = 0; i < n; i++){
+      const r = document.createElementNS(NS, 'rect');
+      r.setAttribute('class', 'bar');
+      r.setAttribute('x', (PAD + slot * i + (slot - bw) / 2).toFixed(2));
+      r.setAttribute('width', bw.toFixed(2));
+      r.setAttribute('rx', Math.min(4, bw / 3).toFixed(1));
+      r.setAttribute('stroke-width', '2.5');
+      r.setAttribute('stroke', 'transparent');
+      svg.appendChild(r);
+      barEls.push(r);
+    }
+  }
+
+  function cx(i){ const area = W - PAD*2, slot = area/n; return PAD + slot*i + slot/2; }
+
+  function drawBars(){
+    for(let i = 0; i < n; i++){
+      const v = arr[i];
+      const h = (v / n) * MAXH + 6;
+      const r = barEls[i];
+      r.setAttribute('y', (FLOOR - h).toFixed(2));
+      r.setAttribute('height', h.toFixed(2));
+      r.setAttribute('fill', colorFor(v));
+    }
+  }
+
+  function clearHighlight(){
+    arcLayer.innerHTML = '';
+    barEls.forEach(r => r.setAttribute('stroke', 'transparent'));
+  }
+
+  // draw all comparators of a stage at once (the "parallel" picture)
+  function highlightStage(st){
+    clearHighlight();
+    for(const c of st.comps){
+      const x1 = cx(c.i), x2 = cx(c.l);
+      const span = Math.abs(c.l - c.i) / n;
+      const peak = BASE - 6 - span * 92;
+      const p = document.createElementNS(NS, 'path');
+      p.setAttribute('class', 'arc');
+      p.setAttribute('d', `M${x1.toFixed(1)},${BASE} Q${((x1+x2)/2).toFixed(1)},${peak.toFixed(1)} ${x2.toFixed(1)},${BASE}`);
+      p.setAttribute('stroke', c.asc ? 'var(--asc)' : 'var(--desc)');
+      p.setAttribute('stroke-width', n > 32 ? 1.4 : 2.2);
+      p.setAttribute('opacity', .85);
+      arcLayer.appendChild(p);
+      barEls[c.i].setAttribute('stroke', 'var(--hot)');
+      barEls[c.l].setAttribute('stroke', 'var(--hot)');
+    }
+  }
+
+  function applyStage(st){
+    for(const c of st.comps){
+      comparisons++;
+      const swap = c.asc ? arr[c.i] > arr[c.l] : arr[c.i] < arr[c.l];
+      if(swap){ const t = arr[c.i]; arr[c.i] = arr[c.l]; arr[c.l] = t; }
+    }
+  }
+
+  function updateStats(){
+    document.querySelector('#vStep .v').textContent = idx + ' / ' + stages.length;
+    document.querySelector('#vCmp .v').textContent = comparisons.toLocaleString();
+  }
+
+  function banner(msg, kj, cls){
+    document.getElementById('bannerMsg').innerHTML = msg;
+    document.getElementById('bannerKJ').textContent = kj;
+    const b = document.getElementById('banner');
+    b.classList.toggle('done', cls === 'done');
+  }
+
+  // one parallel step: show comparators, then (after a beat) apply + animate
+  function step(auto){
+    if(sorted) return;
+    if(idx >= stages.length){ finish(); return; }
+    const st = stages[idx];
+    highlightStage(st);
+    banner(`<b>${st.comps.length}</b> comparators running <b>in parallel</b>`,
+           `k = ${st.k}   j = ${st.j}`, '');
+    const apply = () => {
+      applyStage(st);
+      drawBars();
+      idx++;
+      updateStats();
+      if(idx >= stages.length){
+        setTimeout(finish, speedMs() * 0.6);
+      } else if(auto && playing){
+        timer = setTimeout(() => { clearHighlight(); step(true); }, speedMs());
+      }
+    };
+    // brief pause so the eye registers the parallel set, then exchange
+    setTimeout(apply, Math.max(180, speedMs() * 0.45));
+  }
+
+  function finish(){
+    pause(); sorted = true; clearHighlight();
+    banner(`Sorted in <b>${stages.length}</b> parallel steps · ${comparisons.toLocaleString()} comparisons`,
+           '✓ network complete', 'done');
+  }
+
+  function play(){
+    if(sorted) reset();
+    playing = true;
+    document.getElementById('play').textContent = '❚❚ Pause';
+    document.getElementById('play').classList.remove('primary');
+    step(true);
+  }
+  function pause(){
+    playing = false; clearTimeout(timer);
+    const b = document.getElementById('play');
+    b.textContent = '▶ Play'; b.classList.add('primary');
+  }
+
+  // ---- wiring ----
+  document.getElementById('play').onclick = () => playing ? pause() : play();
+  document.getElementById('step').onclick = () => { pause(); clearHighlight(); step(false); };
+  document.getElementById('reset').onclick = reset;
+  document.getElementById('sizeSeg').addEventListener('click', e => {
+    const btn = e.target.closest('button'); if(!btn) return;
+    document.querySelectorAll('#sizeSeg button').forEach(b => b.classList.remove('on'));
+    btn.classList.add('on');
+    n = +btn.dataset.n; reset();
+  });
+
+  reset();
+})();
+</script>
