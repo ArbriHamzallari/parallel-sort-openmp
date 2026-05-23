@@ -1,0 +1,24 @@
+:root {
+  --ink: #111111;
+  --panel: #121a24;
+  --panel-2: #0f161f;
+  --line: rgba(120, 170, 210, 0.09);
+  --line-strong: rgba(120, 170, 210, 0.18);
+  --txt: #ffffff;
+  --text-secondary: #cccccc;
+  --muted: #b3b3b3;
+  --faint: #8a8a8a;
+  --accent-copper: #e67e22;
+  --accent: #e67e22;
+  --font-display: "Orbitron", "Rajdhani", var(--font-sans);
+  --comparing: #3ec5ff;
+  --hot: #ffce4a;
+  --pivot: #ff4d8d;
+  --ok: #39d98a;
+  --radius: 12px;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+  --font-sans: "Manrope", system-ui, sans-serif;
+  --font-body: "Inter", "Manrope", system-ui, sans-serif;
+  --content-max: 1180px;
+  --content-pad: clamp(16px, 3vw, 32px);
+}

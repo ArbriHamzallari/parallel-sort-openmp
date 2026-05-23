@@ -1,0 +1,365 @@
+/* Algorithm visualizer pages — layout per UI spec */
+
+body.is-algo {
+  background: var(--ink);
+}
+
+body.is-algo #site-footer {
+  display: none;
+}
+
+body.is-algo .page {
+  max-width: none;
+  padding: 0;
+  margin: 0;
+}
+
+body.is-algo .algo-extra {
+  max-width: var(--content-max);
+  margin: 0 auto;
+  padding: 0 var(--content-pad) 64px;
+}
+
+body.is-algo #app {
+  width: 100%;
+}
+
+/* —— Section 1: Visualizer —— */
+.algo-viz-section {
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+.algo-viz-inner {
+  max-width: var(--content-max);
+  margin: 0 auto;
+  padding: 24px var(--content-pad) 0;
+}
+
+.viz-headrow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.viz-headrow .algo-title {
+  position: static;
+  font-family: var(--font-display);
+  font-size: clamp(32px, 5vw, 48px);
+  font-weight: 800;
+  color: var(--txt);
+  margin: 0;
+  letter-spacing: 0.02em;
+  line-height: 1.05;
+  max-width: none;
+  text-shadow: none;
+  flex: 1 1 200px;
+}
+
+.viz-controls {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  flex-wrap: wrap;
+  pointer-events: auto;
+}
+
+.viz-canvas-wrap {
+  position: relative;
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
+  min-height: min(68vh, 580px);
+}
+
+.viz-canvas-wrap #viz-canvas {
+  width: 100%;
+  height: min(68vh, 580px);
+  display: block;
+  background: transparent;
+}
+
+.viz-canvas-wrap .phase-banner {
+  position: absolute;
+  bottom: 20px;
+  left: max(var(--content-pad), calc(50vw - var(--content-max) / 2 + var(--content-pad)));
+  right: var(--content-pad);
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--hot);
+  text-shadow: 0 1px 10px rgba(0, 0, 0, 0.9);
+  pointer-events: none;
+}
+
+/* Square control buttons */
+body.is-algo .icon-square {
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: #1a1a1e;
+  color: var(--txt);
+  backdrop-filter: none;
+}
+
+body.is-algo .icon-square:hover {
+  border-color: var(--accent-copper);
+  color: var(--accent-copper);
+}
+
+/* Elements slider — white track, rectangular thumb */
+body.is-algo .elements-control {
+  min-width: 200px;
+  max-width: 280px;
+}
+
+body.is-algo .elements-label {
+  display: block;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--txt);
+  margin-bottom: 8px;
+}
+
+body.is-algo .elements-label strong {
+  font-weight: 700;
+}
+
+body.is-algo .elements-control input[type='range'] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.85);
+  border-radius: 0;
+  accent-color: transparent;
+}
+
+body.is-algo .elements-control input[type='range']::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 4px;
+  height: 18px;
+  background: #fff;
+  border: none;
+  border-radius: 0;
+  cursor: pointer;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.3);
+}
+
+body.is-algo .elements-control input[type='range']::-moz-range-thumb {
+  width: 4px;
+  height: 18px;
+  background: #fff;
+  border: none;
+  border-radius: 0;
+  cursor: pointer;
+}
+
+/* Secondary controls row */
+body.is-algo .controls-row {
+  max-width: var(--content-max);
+  margin: 0 auto;
+  padding: 16px var(--content-pad) 8px;
+}
+
+body.is-algo .pow2-note {
+  max-width: var(--content-max);
+  margin: 0 auto;
+  padding: 0 var(--content-pad) 16px;
+}
+
+/* —— Section 2: Description & Complexity (60 / 40) —— */
+body.is-algo .info-grid {
+  display: grid;
+  grid-template-columns: 3fr 2fr;
+  gap: clamp(24px, 4vw, 48px);
+  margin: 48px 0 40px;
+  padding-top: 40px;
+  border-top: none;
+}
+
+body.is-algo .section-heading {
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--txt);
+  margin: 0 0 24px;
+}
+
+body.is-algo .info-col p {
+  color: var(--text-secondary);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.6;
+  margin: 0 0 18px;
+}
+
+body.is-algo .algo-link {
+  color: var(--accent-copper);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: var(--accent-copper);
+}
+
+body.is-algo .algo-link:hover {
+  color: #f39c12;
+}
+
+/* Complexity table — internal orange rules only */
+body.is-algo .complexity-table {
+  width: 100%;
+  border-collapse: collapse;
+  border: none;
+  font-size: 14px;
+}
+
+body.is-algo .complexity-table th,
+body.is-algo .complexity-table td {
+  border: none;
+  padding: 14px 16px;
+  text-align: left;
+  vertical-align: middle;
+  background: transparent;
+}
+
+body.is-algo .complexity-table th {
+  font-family: var(--font-body);
+  font-weight: 500;
+  color: var(--text-secondary);
+  width: 52%;
+  border-bottom: 1px solid rgba(230, 126, 34, 0.45);
+  border-right: 1px solid rgba(230, 126, 34, 0.45);
+}
+
+body.is-algo .complexity-table td {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--txt);
+  border-bottom: 1px solid rgba(230, 126, 34, 0.45);
+}
+
+body.is-algo .complexity-table tr:last-child th,
+body.is-algo .complexity-table tr:last-child td {
+  border-bottom: none;
+}
+
+body.is-algo .parallel-val {
+  color: #5ec5ff;
+  font-weight: 600;
+}
+
+body.is-algo .complexity-note {
+  color: var(--faint);
+  font-size: 12px;
+  margin-top: 14px;
+  line-height: 1.5;
+}
+
+/* —— Section 3: Implementations —— */
+body.is-algo .impl-section {
+  margin-bottom: 32px;
+  padding-top: 40px;
+  border-top: none;
+}
+
+body.is-algo .impl-box {
+  border: 1px solid rgba(230, 126, 34, 0.55);
+  border-radius: 10px;
+  overflow: hidden;
+  background: #0d0d0f;
+}
+
+body.is-algo .impl-tabbar {
+  display: flex;
+  background: #0a0a0c;
+  border-bottom: 1px solid rgba(230, 126, 34, 0.45);
+}
+
+body.is-algo .impl-tab {
+  flex: 1;
+  min-height: 52px;
+  padding: 10px;
+  border: none;
+  border-right: 1px solid rgba(230, 126, 34, 0.2);
+  background: transparent;
+}
+
+body.is-algo .impl-tab:last-child {
+  border-right: none;
+}
+
+body.is-algo .impl-tab:hover:not(.active) {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+body.is-algo .impl-tab.active {
+  background: #f0db4f;
+  box-shadow: none;
+}
+
+body.is-algo .impl-tab.active .lang-js.lang-badge,
+body.is-algo .impl-tab.active .lang-py.lang-badge {
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.15);
+}
+
+body.is-algo .lang-badge {
+  font-size: 12px;
+  padding: 6px 12px;
+  min-width: 44px;
+  text-align: center;
+}
+
+body.is-algo .impl-code-wrap {
+  background: #0a0a0e;
+  border: none;
+}
+
+body.is-algo .impl-pre {
+  padding: 20px 18px 18px;
+  max-height: 480px;
+}
+
+/* Prism syntax tuning (magenta controls, cyan types) */
+body.is-algo .impl-pre .token.keyword {
+  color: #ff79c6;
+}
+
+body.is-algo .impl-pre .token.function {
+  color: #e8e8e8;
+}
+
+body.is-algo .impl-pre .token.class-name,
+body.is-algo .impl-pre .token.builtin {
+  color: #8be9fd;
+}
+
+body.is-algo .impl-pre .token.number {
+  color: #bd93f9;
+}
+
+body.is-algo .impl-pre .token.operator,
+body.is-algo .impl-pre .token.punctuation {
+  color: #f8f8f2;
+}
+
+@media (max-width: 900px) {
+  .viz-headrow {
+    flex-direction: column;
+  }
+
+  .viz-controls {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  body.is-algo .info-grid {
+    grid-template-columns: 1fr;
+  }
+}

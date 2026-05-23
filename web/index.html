@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Parallel Sort — Visualizer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&family=Orbitron:wght@500;700;800&family=Rajdhani:wght@600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles/tokens.css" />
+    <link rel="stylesheet" href="./styles/app.css" />
+    <link rel="stylesheet" href="./styles/landing.css" />
+    <link rel="stylesheet" href="./styles/algo-page.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css"
+    />
+  </head>
+  <body>
+    <div class="bg-streaks" aria-hidden="true"></div>
+
+    <header class="app-bar">
+      <button type="button" id="nav-toggle" class="icon-btn" aria-label="Open menu" aria-expanded="false">
+        <span class="hamburger"></span>
+      </button>
+      <a href="#/" class="wordmark">PARALLEL SORT</a>
+      <button type="button" id="sound-toggle" class="icon-btn sound-btn" aria-label="Sound on" aria-pressed="true"></button>
+    </header>
+
+    <div id="drawer-overlay" class="drawer-overlay"></div>
+    <nav id="drawer" class="drawer" aria-label="Algorithms">
+      <p class="drawer-title">Algorithms</p>
+      <div id="drawer-list"></div>
+    </nav>
+
+    <main class="page">
+      <div id="app"></div>
+      <div class="algo-extra">
+        <div id="info-panel"></div>
+        <div id="impl-panel"></div>
+      </div>
+    </main>
+
+    <div id="site-footer"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-cpp.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-c.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-java.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+    <script type="module" src="./src/main.js"></script>
+  </body>
+</html>

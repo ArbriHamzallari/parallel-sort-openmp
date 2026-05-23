@@ -21,8 +21,9 @@ make test       # verify all three algorithms are correct (random + edge sizes)
 make bench      # run the full sweep on YOUR machine and regenerate the charts
 ```
 
-Open the live demo by double-clicking **`bitonic_visualizer.html`** (any browser,
-no install). Then run a single configuration by hand if you like:
+Open the **web visualizer** (see [`web/README.md`](web/README.md)) — run locally
+with `cd web && python3 -m http.server 8000`, or deploy the `web/` folder to
+Vercel or GitHub Pages. Then run a single benchmark by hand if you like:
 
 ```bash
 ./psort --algo radix --n 4194304 --threads 8 --reps 5 --verify
@@ -77,22 +78,21 @@ flipping the sign bit.
 
 ---
 
-## The visualizer (`bitonic_visualizer.html`)
+## The web visualizer (`web/`)
 
-Built for the live demo. Bars are values; sorting produces a smooth color
-gradient so correctness is visible at a glance. Each step highlights **all**
-comparators of one stage at once — the on-screen counter "*N comparators running
-in parallel*" and the `(k, j)` labels map directly to the code on your slides.
-Controls: Play / Step / Shuffle, size 8–64, speed. The "parallel depth" stat is
-the theoretical parallel step count `½·log₂n·(log₂n+1)` (n=16 → 10 steps).
+Interactive demo for presentations: **Bitonic**, **Sample (PSRS)**, and **Radix**
+sorts (plus classic comparison sorts). Animated bars, procedural sound, complexity
+tables, and copy-pasteable implementations in C/C++/Java/JS/Python. For bitonic
+sort, phase banners show `(k, j)` stages that map directly to the loops in
+`bitonic_sort.hpp`.
 
 ---
 
 ## Demo talking points
 
-1. **Open the visualizer at n=16, click Step a few times.** Point out that the
-   highlighted comparators in each stage have *no data dependency on each other*
-   — that is the whole reason the stage parallelizes.
+1. **Open the web app → Bitonic Sort, shuffle, then Step or Play.** Point out that
+   comparators in each stage have *no data dependency on each other* — that is why
+   the stage parallelizes.
 2. **Tie it to the code.** The `(k, j)` banner is literally the two outer loops
    in `bitonic_sort.hpp`; the parallel `for` is over the comparators shown.
 3. **Show `time_vs_size.png`.** Radix is fastest even on one thread (linear, no
@@ -110,7 +110,7 @@ the theoretical parallel step count `½·log₂n·(log₂n+1)` (n=16 → 10 step
 parallel-sort/
 ├── Makefile
 ├── README.md
-├── bitonic_visualizer.html        # interactive live demo
+├── web/                           # interactive visualizer (deploy this)
 ├── src/
 │   ├── common.hpp                 # data generation, verification, timing
 │   ├── bitonic_sort.hpp

@@ -9,6 +9,9 @@ psort
 .vscode/
 .idea/
 
+# Local AI / editor brief (not for the public repo)
+CLAUDE.md
+
 # Note: results/ (sample chart + CSVs) is kept in the repo so the README
 # image renders on GitHub. After you run `make bench` on your machine,
 # commit your own charts to replace the single-thread samples.
