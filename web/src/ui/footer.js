@@ -1,7 +1,7 @@
 /** Site footer — team, contact, references. */
 
 const FOOTER = {
-  team: ['Arbri Hamzallari', 'Drini Dalipaj'],
+  team: ['Arbri Hamzallari', 'Drini Dalipaj', 'Christian Tasellari'],
   contacts: ['arbrihamzalari@outlook.com', 'drinidalipaj@gmail.com'],
   refs: [
     {
